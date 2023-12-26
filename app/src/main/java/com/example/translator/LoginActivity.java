@@ -1,7 +1,6 @@
 package com.example.translator;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import static com.example.translator.FBref.refUsers;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,11 +8,15 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.example.translator.FBref;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -88,6 +91,13 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, move to main activity
                             Toast.makeText(LoginActivity.this, "Register successful", Toast.LENGTH_SHORT).show();
+
+                            //create new user
+                            String userId = mAuth.getCurrentUser().getUid();
+                            Users user = new Users(userId);
+
+                            //create new user in firebase database
+                            refUsers.child(userId).setValue(user);
 
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
