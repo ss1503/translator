@@ -18,6 +18,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.example.translator.FBref;
 
+import java.util.Objects;
+
 public class LoginActivity extends AppCompatActivity {
 
     //firebase vars
@@ -93,7 +95,7 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, "Register successful", Toast.LENGTH_SHORT).show();
 
                             //create new user
-                            String userId = mAuth.getCurrentUser().getUid();
+                            String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
                             Users user = new Users(userId);
 
                             //create new user in firebase database
