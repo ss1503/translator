@@ -8,14 +8,14 @@ import java.util.List;
 public class Users {
     //components
     private String UserId;
-    private ArrayList<TextTranslate> translate;
+    private List<TextTranslate> translate;
     private int toCapture;
 
     //constructor
     public Users(String UserId)
     {
         this.UserId = UserId;
-        this.translate = null;
+        this.translate = new ArrayList<>();
         this.toCapture = 0;
     }
 
@@ -32,11 +32,11 @@ public class Users {
         UserId = userId;
     }
 
-    public ArrayList<TextTranslate> getTranslate() {
+    public List<TextTranslate> getTranslate() {
         return translate;
     }
 
-    public void setTranslate(ArrayList<TextTranslate> translate) {
+    public void setTranslate(List<TextTranslate> translate) {
         this.translate = translate;
     }
 
@@ -46,5 +46,16 @@ public class Users {
 
     public void setToCapture(int toCapture) {
         this.toCapture = toCapture;
+    }
+
+    //add to translate
+    public void addTranslate(TextTranslate t)
+    {
+        this.translate.add(t);
+    }
+
+    public void resetTranslate()
+    {
+        this.translate = new ArrayList<TextTranslate>();
     }
 }
