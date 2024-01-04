@@ -3,8 +3,10 @@ package com.example.translator;
 import static com.example.translator.FBref.refUsers;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -28,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
     //component vars
     private EditText email;
     private EditText password;
+    private CheckBox rememberCb;
 
 
     //vars
@@ -43,6 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         //init component vars
         email = (EditText) findViewById(R.id.UsernameEdt);
         password = (EditText) findViewById(R.id.PasswordEdt);
+        rememberCb = (CheckBox) findViewById(R.id.rememberCb);
 
     }
 
@@ -53,16 +57,30 @@ public class LoginActivity extends AppCompatActivity {
         // Check if user is signed in (non-null) and move to main activity
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        if(currentUser != null)
+        //check if user want to stay connected
+        SharedPreferences settings = getSharedPreferences("PREFS_NAME", MODE_PRIVATE);
+        boolean isChecked = settings.getBoolean("stayConnect", false);
+
+        if(currentUser != null && isChecked)
         {
-            Intent sourceIntent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(sourceIntent);
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
         }
     }
 
 
     public void signIn(View view)
     {
+        //save if user wants to be signed in
+        if(rememberCb.isChecked())
+        {
+            SharedPreferences settings = getSharedPreferences("PREFS_NAME", MODE_PRIVATE);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean("stayConnect", true);
+            editor.commit();
+        }
+
+
         String emailVal = email.getText().toString();
         String passwordVal = password.getText().toString();
 

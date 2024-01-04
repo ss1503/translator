@@ -13,6 +13,7 @@ import androidx.core.content.FileProvider;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -110,6 +111,10 @@ public class MainActivity extends AppCompatActivity {
     public void signOut(View view)
     {
         FirebaseAuth.getInstance().signOut();
+        SharedPreferences settings = getSharedPreferences("PREFS_NAME", MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("stayConnect", false);
+        editor.commit();
         finish();
     }
 
