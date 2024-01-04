@@ -66,22 +66,28 @@ public class LoginActivity extends AppCompatActivity {
         String emailVal = email.getText().toString();
         String passwordVal = password.getText().toString();
 
-        mAuth.signInWithEmailAndPassword(emailVal, passwordVal)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Toast.makeText(LoginActivity.this, "Sign in successful", Toast.LENGTH_SHORT).show();
+        if(!emailVal.equals("") && !passwordVal.equals(""))
+        {
+            mAuth.signInWithEmailAndPassword(emailVal, passwordVal)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                // Sign in success, update UI with the signed-in user's information
+                                Toast.makeText(LoginActivity.this, "Sign in successful", Toast.LENGTH_SHORT).show();
 
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Toast.makeText(LoginActivity.this, "Sign in failed", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intent);
+                            } else {
+                                // If sign in fails, display a message to the user.
+                                Toast.makeText(LoginActivity.this, "Sign in failed", Toast.LENGTH_SHORT).show();
+                            }
                         }
-                    }
-                });
+                    });
+        }
+        else{
+            Toast.makeText(this, "Please enter username and password", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void register(View view)
@@ -89,29 +95,35 @@ public class LoginActivity extends AppCompatActivity {
         String emailVal = email.getText().toString();
         String passwordVal = password.getText().toString();
 
-        mAuth.createUserWithEmailAndPassword(emailVal, passwordVal)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, move to main activity
-                            Toast.makeText(LoginActivity.this, "Register successful", Toast.LENGTH_SHORT).show();
+        if(!emailVal.equals("") && !passwordVal.equals(""))
+        {
+            mAuth.createUserWithEmailAndPassword(emailVal, passwordVal)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                // Sign in success, move to main activity
+                                Toast.makeText(LoginActivity.this, "Register successful", Toast.LENGTH_SHORT).show();
 
-                            //create new user
-                            String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
-                            Users user = new Users(userId);
+                                //create new user
+                                String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
+                                Users user = new Users(userId);
 
-                            //create new user in firebase database
-                            refUsers.child(userId).setValue(user);
+                                //create new user in firebase database
+                                refUsers.child(userId).setValue(user);
 
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intent);
 
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Toast.makeText(LoginActivity.this, "Register failed", Toast.LENGTH_SHORT).show();
+                            } else {
+                                // If sign in fails, display a message to the user.
+                                Toast.makeText(LoginActivity.this, "Register failed", Toast.LENGTH_SHORT).show();
+                            }
                         }
-                    }
-                });
+                    });
+        }
+        else {
+            Toast.makeText(this, "Please enter username and password", Toast.LENGTH_SHORT).show();
+        }
     }
 }

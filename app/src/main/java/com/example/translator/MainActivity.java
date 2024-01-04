@@ -122,37 +122,11 @@ public class MainActivity extends AppCompatActivity {
             currentPath = imgFile.getAbsolutePath();
             Uri imgUri = FileProvider.getUriForFile(MainActivity.this, "com.example.translator.fileprovider", imgFile);
 
-            //getting rotation
-//
-//            try {
-//
-//                getContentResolver().notifyChange(imgUri, null);
-//                ExifInterface exif = new ExifInterface(imgFile.getAbsolutePath());
-//                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-//
-//                switch (orientation)
-//                {
-//                    case ExifInterface.ORIENTATION_ROTATE_270:
-//                        rotate = 270;
-//                        break;
-//                    case ExifInterface.ORIENTATION_ROTATE_180:
-//                        rotate = 180;
-//                        break;
-//                    case ExifInterface.ORIENTATION_ROTATE_90:
-//                        rotate = 90;
-//                        break;
-//                }
-//
-//            }catch(Exception e){
-//                e.printStackTrace();
-//            }
-
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, imgUri);
-            if(intent.resolveActivity(getPackageManager()) != null)
-            {
-                startActivityForResult(intent, CAMERA_CAPTURE_REQUEST_CODE);
-            }
+
+            startActivityForResult(intent, CAMERA_CAPTURE_REQUEST_CODE);
+
 
         }catch (IOException e)
         {
@@ -196,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
 
         StorageReference storageReference = FBST.getReference().child(storagePath);
 
-        pd = ProgressDialog.show(this, "Upload image", "uplading...", true);
+        pd = ProgressDialog.show(this, "Upload image", "uploading...", true);
 
         storageReference.putBytes(imgBytes).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
