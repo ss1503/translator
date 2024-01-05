@@ -104,7 +104,6 @@
                 android:layout_height="wrap_content"
                 android:inputType="textPassword" />
 
-
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -129,17 +128,38 @@
                 android:layout_width="wrap_content"
                 android:layout_height="15dp"/>
 
-            <com.google.android.material.button.MaterialButton
+
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:text="Register"
-                app:cornerRadius="32dp"
-                android:onClick="register"
-                />
+                android:layout_height="wrap_content">
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:alpha="0.7"
+                    android:text="If you don't have an account register here:"
+                    android:textStyle="bold"
+                    android:textSize="12sp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:layout_width="130dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="-10dp"
+                    android:onClick="register"
+                    android:text="@string/register_txt"
+                    android:textColor="@color/primary"
+                    app:cornerRadius="32dp"
+                    android:background="@android:color/transparent"/>
+
+            </RelativeLayout>
+
 
             <View
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"/>
+                android:layout_height="30dp"/>
 
         </LinearLayout>
 

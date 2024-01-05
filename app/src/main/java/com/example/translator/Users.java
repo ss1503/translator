@@ -8,15 +8,18 @@ import java.util.List;
 public class Users {
     //components
     private String UserId;
+
+    private String name;
     private List<TextTranslate> translate;
     private int toCapture;
 
     //constructor
-    public Users(String UserId)
+    public Users(String UserId, String name)
     {
         this.UserId = UserId;
         this.translate = new ArrayList<>();
         this.toCapture = 0;
+        this.name = name;
     }
 
     //default constructor
@@ -46,6 +49,14 @@ public class Users {
 
     public void setToCapture(int toCapture) {
         this.toCapture = toCapture;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     //add to translate
