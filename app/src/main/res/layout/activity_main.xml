@@ -1,86 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/button3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/black"
-        android:text="Sign out"
-        android:onClick="signOut"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.05"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.963" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="155dp"
-        android:layout_height="40sp"
-        android:layout_marginEnd="16dp"
-        android:hint="Translated"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.043" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="20dp"
+            android:gravity="center">
 
-    <Button
-        android:id="@+id/button4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/black"
-        android:text="Capture"
-        android:onClick="capture"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.876"
-        app:layout_constraintStart_toEndOf="@+id/button3"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.963" />
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/black_translation_icon"/>
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="155dp"
-        android:layout_height="40sp"
-        android:layout_marginStart="6dp"
-        android:hint="original"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/textView3"
-        app:layout_constraintHorizontal_bias="0.188"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.043" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="camTranslator"
+                android:textStyle="bold"
+                android:layout_marginStart="4dp"
+                android:layout_gravity="center"
+                android:textSize="23sp"/>
 
-    <ImageView
-        android:id="@+id/resultIv"
-        android:layout_width="0dp"
-        android:layout_height="547dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.444"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.603"
-        tools:srcCompat="@tools:sample/avatars" />
 
-    <Spinner
-        android:id="@+id/LangSp"
-        android:layout_width="154dp"
-        android:layout_height="25dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.932"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3"
-        app:layout_constraintVertical_bias="0.0" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="20dp"
+            android:weightSum="3"
+            android:layout_gravity="center"
+            android:background="@drawable/background"
+            android:elevation="4dp">
+
+            <Spinner
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:id="@+id/idFromSpinner"
+                android:layout_margin="3dp"
+                android:padding="3dp"
+                android:layout_gravity="center"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/exchange_arrow_icon"
+                android:layout_gravity="center"/>
+
+            <Spinner
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:id="@+id/idToSpinner"
+                android:layout_margin="3dp"
+                android:padding="3dp"
+                android:layout_gravity="center"/>
+
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:padding="5dp"
+            app:hintEnabled="false"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            app:boxBackgroundMode="none"
+            android:elevation="8dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/idEditSource"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/background"
+                android:ems="10"
+                android:gravity="top"
+                android:hint="Enter text or take an image"
+                android:importantForAutofill="no"
+                android:inputType="textImeMultiLine|textMultiLine"
+                android:textColor="@color/primary"
+                android:textColorHint="@android:color/darker_gray"
+                android:textSize="13sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:text="Translate"
+            android:onClick="translate"
+            android:backgroundTint="@color/primary"
+            android:textSize="19sp"
+            android:textAllCaps="false"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:id="@+id/idTranslatedTv"
+            android:text="Translated text here"
+            android:background="@drawable/background"
+            android:elevation="3dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:textAlignment="textStart"
+            android:padding="16sp"
+            android:textSize="13sp"
+            android:textColor="@color/primary"
+            android:letterSpacing="0.03"
+            android:visibility="gone"
+            />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="340dp"
+            android:id="@+id/imageResultIV"
+            android:layout_marginTop="5dp"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            >
+
+            <Button
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:backgroundTint="@color/primary"
+                android:text="Sign out"
+                android:textSize="13dp"
+                android:onClick="signOut"
+                android:layout_gravity="center"
+                />
+
+            <Button
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="205dp"
+                android:backgroundTint="@color/primary"
+                android:onClick="capture"
+                android:text="Capture"
+                android:textSize="13dp" />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</ScrollView>
