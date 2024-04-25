@@ -324,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
 
         //saving image in firebase storage using date format
         Date date = Calendar.getInstance().getTime();
-        DateFormat dateFormat = new SimpleDateFormat("YYYY-mm-mm-HH:mm:ss");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
         String resDate = dateFormat.format(date);
         String id = mAuth.getCurrentUser().getUid();
         String storagePath = "scan_images/"+ id + "/image_" + resDate + ".jpg";
