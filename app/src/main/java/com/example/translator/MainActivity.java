@@ -6,12 +6,14 @@ import static com.example.translator.FBref.refUsers;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,6 +24,7 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.media.Image;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -116,6 +119,11 @@ public class MainActivity extends AppCompatActivity {
         fromSpinner = (Spinner) findViewById(R.id.idFromSpinner);
         toSpinner = (Spinner) findViewById(R.id.idToSpinner);
 
+        //start service
+        Intent serviceIntent = new Intent(this, myBackgroundService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            startForegroundService(serviceIntent);
+
         //ask for permission
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
         {
@@ -155,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
 
     public String getLanCode(String language)
@@ -221,39 +230,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void signOut(View view)
-    {
-        FirebaseAuth.getInstance().signOut();
-        SharedPreferences settings = getSharedPreferences("PREFS_NAME", MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean("stayConnect", false);
-        editor.commit();
-        finish();
-    }
-
-    public void capture(View view) throws IOException {
-        try {
-            //creating temp local file for storing the picture
-            String fileName = "tempfile";
-            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-            File imgFile = File.createTempFile(fileName, ".jpg", storageDir);
-            currentPath = imgFile.getAbsolutePath();
-            Uri imgUri = FileProvider.getUriForFile(MainActivity.this, "com.example.translator.fileprovider", imgFile);
-
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, imgUri);
-
-            startActivityForResult(intent, CAMERA_CAPTURE_REQUEST_CODE);
-
-
-        }catch (IOException e)
-        {
-            Toast.makeText(this, "Failed to create temp file", Toast.LENGTH_SHORT).show();
-            throw new RuntimeException(e);
-        }
-    }
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -281,9 +257,7 @@ public class MainActivity extends AppCompatActivity {
             {
                 //get the picture date in right format
                 String pictureChosen = data.getStringExtra("picChosen");
-                String picChosenRightFormat = formatDate(pictureChosen);
-
-                getHistoryPicChosen(picChosenRightFormat);
+                getHistoryPicChosen(pictureChosen);
             }
         }
     }
@@ -322,25 +296,26 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private String formatDate(String date)
-    {
-
-        SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss");
-        SimpleDateFormat outputDateFormat = new SimpleDateFormat("yyyymmddhhmmss");
-
+    public void capture(View view) throws IOException {
         try {
-            // Parse the input date string into a Date object
-            Date inputDate = inputDateFormat.parse(date);
+            //creating temp local file for storing the picture
+            String fileName = "tempfile";
+            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            File imgFile = File.createTempFile(fileName, ".jpg", storageDir);
+            currentPath = imgFile.getAbsolutePath();
+            Uri imgUri = FileProvider.getUriForFile(MainActivity.this, "com.example.translator.fileprovider", imgFile);
 
-            // Format the Date object into the desired output format
-            String outputDateStr = outputDateFormat.format(inputDate);
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, imgUri);
 
-            return outputDateStr;
-        } catch (ParseException e) {
-            e.printStackTrace();
+            startActivityForResult(intent, CAMERA_CAPTURE_REQUEST_CODE);
+
+
+        }catch (IOException e)
+        {
+            Toast.makeText(this, "Failed to create temp file", Toast.LENGTH_SHORT).show();
+            throw new RuntimeException(e);
         }
-
-        return "";
     }
 
     private void uploadImageToStorage(byte[] imgBytes)
@@ -349,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
 
         //saving image in firebase storage using date format
         Date date = Calendar.getInstance().getTime();
-        DateFormat dateFormat = new SimpleDateFormat("yyyymmddhhmmss");
+        DateFormat dateFormat = new SimpleDateFormat("YYYY-mm-mm-HH:mm:ss");
         String resDate = dateFormat.format(date);
         String id = mAuth.getCurrentUser().getUid();
         String storagePath = "scan_images/"+ id + "/image_" + resDate + ".jpg";
@@ -394,7 +369,7 @@ public class MainActivity extends AppCompatActivity {
                     Users userTemp = data.getValue(Users.class);
 
                     //update database
-                    TextTranslate t = new TextTranslate(date, "null", "null");
+                    TextTranslate t = new TextTranslate(date);
 
                     if(userTemp.getTranslate() == null)
                     {
@@ -410,16 +385,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void recognizeText()
     {
-
-
         if(iv.getDrawable() == null)
         {
             Toast.makeText(this, "No image detected", Toast.LENGTH_SHORT).show();
         }
         else
         {
-            InputImage inputImage = InputImage.fromBitmap(bitmap, 90); //maybe later need to change the degrees here
+            iv.setDrawingCacheEnabled(true);
+            Bitmap tempBitmap = Bitmap.createBitmap(iv.getDrawingCache());
+            iv.setDrawingCacheEnabled(false);
 
+            InputImage inputImage = InputImage.fromBitmap(tempBitmap, 90); //maybe later need to change the degrees here
             Task<Text> textTaskResult = textRecognizer.process(inputImage).addOnSuccessListener(new OnSuccessListener<Text>() {
                 @Override
                 public void onSuccess(Text text) {
@@ -454,7 +430,6 @@ public class MainActivity extends AppCompatActivity {
 
         //check if the model has been downloaded
         DownloadConditions conditions = new DownloadConditions.Builder()
-
                 .build();
         translator.downloadModelIfNeeded(conditions).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
@@ -472,6 +447,7 @@ public class MainActivity extends AppCompatActivity {
                         translatedTv.setVisibility(View.VISIBLE);
                         translatedTv.setText(s);
                         Toast.makeText(MainActivity.this, "Translated text successfully", Toast.LENGTH_SHORT).show();
+
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -497,10 +473,27 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Intent srcIntent = new Intent(MainActivity.this, HistoryActivity.class);
-        startActivityForResult(srcIntent, GET_PIC_FROM_HISTORY_REQUEST_CODE);
+
+        CharSequence title = item.getTitle();
+        if (title.equals("History")) {
+            Intent srcIntent = new Intent(MainActivity.this, HistoryActivity.class);
+            startActivityForResult(srcIntent, GET_PIC_FROM_HISTORY_REQUEST_CODE);
+
+        } else if (title.equals("Sign out")) {
+            FirebaseAuth.getInstance().signOut();
+            SharedPreferences settings = getSharedPreferences("PREFS_NAME", MODE_PRIVATE);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean("stayConnect", false);
+            editor.commit();
+            finish();
+        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void recognize(View view)
+    {
+        recognizeText();
     }
 }
 

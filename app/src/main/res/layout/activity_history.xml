@@ -28,6 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="620dp"
             android:id="@+id/picNamesLv"
+            android:minHeight="?android:attr/listPreferredItemHeight"
             />
 
         <LinearLayout
@@ -47,9 +48,6 @@
                 android:id="@+id/confirmBtn"
                 android:onClick="confirmPic"/>
 
-
-
         </LinearLayout>
-
     </LinearLayout>
 </ScrollView>

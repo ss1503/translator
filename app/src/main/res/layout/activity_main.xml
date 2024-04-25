@@ -73,7 +73,8 @@
                 android:id="@+id/idToSpinner"
                 android:layout_margin="3dp"
                 android:padding="3dp"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                />
 
         </LinearLayout>
 
@@ -146,12 +147,12 @@
             >
 
             <Button
-                android:layout_width="100dp"
+                android:layout_width="115dp"
                 android:layout_height="50dp"
                 android:backgroundTint="@color/primary"
-                android:text="Sign out"
+                android:text="Recognize"
                 android:textSize="13dp"
-                android:onClick="signOut"
+                android:onClick="recognize"
                 android:layout_gravity="center"
                 />
 
@@ -159,7 +160,7 @@
                 android:layout_width="100dp"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
-                android:layout_marginStart="205dp"
+                android:layout_marginStart="160dp"
                 android:backgroundTint="@color/primary"
                 android:onClick="capture"
                 android:text="Capture"

@@ -74,7 +74,7 @@ public class HistoryActivity extends AppCompatActivity implements AdapterView.On
 
     }
 
-    private synchronized void getUsersPicturesNames() {
+    private void getUsersPicturesNames() {
         String userId = Objects.requireNonNull(mauth.getCurrentUser()).getUid();
 
         refUsers.child(userId).child("translate").addValueEventListener(new ValueEventListener() {
@@ -84,9 +84,7 @@ public class HistoryActivity extends AppCompatActivity implements AdapterView.On
                 //getting the dates of the pictures into the array to display in the list view
                 for (DataSnapshot data : snapshot.getChildren()) {
                     picturesScanned.add(data.getValue(TextTranslate.class));
-                    String resDate = formatDate(picturesScanned.get(picturesScanned.size() - 1).getDate());
-
-                    imagesNames.add(resDate);
+                    imagesNames.add(picturesScanned.get(picturesScanned.size() - 1).getDate());
                 }
 
                 Toast.makeText(HistoryActivity.this, imagesNames.get(0), Toast.LENGTH_SHORT).show();
@@ -100,27 +98,6 @@ public class HistoryActivity extends AppCompatActivity implements AdapterView.On
 
             }
         });
-    }
-
-    private String formatDate(String date)
-    {
-
-        SimpleDateFormat inputDateFormat = new SimpleDateFormat("yyyymmddhhmmss");
-        SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss");
-
-        try {
-            // Parse the input date string into a Date object
-            Date inputDate = inputDateFormat.parse(date);
-
-            // Format the Date object into the desired output format
-            String outputDateStr = outputDateFormat.format(inputDate);
-
-            return outputDateStr;
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return "";
     }
 
     @Override
