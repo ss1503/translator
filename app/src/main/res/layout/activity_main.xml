@@ -117,7 +117,7 @@
 
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="70dp"
             android:id="@+id/idTranslatedTv"
             android:text="Translated text here"
             android:background="@drawable/background"
