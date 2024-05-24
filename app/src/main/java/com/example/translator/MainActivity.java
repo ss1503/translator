@@ -15,7 +15,10 @@ import androidx.core.content.FileProvider;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -67,6 +70,7 @@ import java.util.Date;
 
 import com.example.translator.Users;
 import com.example.translator.LoginActivity;
+import com.example.translator.ServiceRestartRecevier;
 
 
 import com.google.mlkit.common.model.DownloadConditions;
@@ -87,6 +91,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_CAPTURE_REQUEST_CODE = 101;
     private static final int GET_PIC_FROM_HISTORY_REQUEST_CODE = 1;
     private static final int REQUEST_OVERLAY_PERMISSION_REQUEST_CODE = 2;
+    private static final int ALARM_REQUEST_CODE = 1001;
+    private static final long INTERVAL_MS = 1 * 60 * 1000L; // 1 minutes
+
 
 
     //components vars
@@ -129,9 +136,10 @@ public class MainActivity extends AppCompatActivity {
         }
         else
         {
-            Intent serviceIntent = new Intent(this, myBackgroundService.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                startForegroundService(serviceIntent);
+//            Intent serviceIntent = new Intent(this, myBackgroundService.class);
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+//                startForegroundService(serviceIntent);
+            scheduleAlarm(); //start foregroud service and alarm manager
         }
 
         //ask for camera permission
@@ -174,6 +182,32 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    void scheduleAlarm()
+    {
+        Intent serviceIntent = new Intent(this, myBackgroundService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        }
+
+//        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//
+//        Intent intent = new Intent(this, myBackgroundService.class);
+//
+//        PendingIntent pendingIntent = PendingIntent.getService(this, ALARM_REQUEST_CODE, intent, PendingIntent.FLAG_IMMUTABLE);
+//
+//        if (alarmManager != null)
+//        {
+//            long triggerAtMillis = System.currentTimeMillis() + INTERVAL_MS;
+//
+//            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+//                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+//            } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+//                alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+//            } else {
+//                alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+//            }
+//        }
+    }
 
 
     public String getLanCode(String language)
@@ -241,7 +275,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
+    {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == CAMERA_CAPTURE_REQUEST_CODE && resultCode == RESULT_OK)

