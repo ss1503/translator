@@ -82,15 +82,23 @@ public class HistoryActivity extends AppCompatActivity implements AdapterView.On
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                 //getting the dates of the pictures into the array to display in the list view
-                for (DataSnapshot data : snapshot.getChildren()) {
-                    picturesScanned.add(data.getValue(TextTranslate.class));
-                    imagesNames.add(picturesScanned.get(picturesScanned.size() - 1).getDate());
+                if(snapshot.exists())
+                {
+                    for (DataSnapshot data : snapshot.getChildren()) {
+                        picturesScanned.add(data.getValue(TextTranslate.class));
+                        imagesNames.add(picturesScanned.get(picturesScanned.size() - 1).getDate());
+                    }
+
+                    Toast.makeText(HistoryActivity.this, imagesNames.get(0), Toast.LENGTH_SHORT).show();
+
+                    adp = new ArrayAdapter<String>(HistoryActivity.this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, imagesNames);
+                    lv.setAdapter(adp);
+
                 }
-
-                Toast.makeText(HistoryActivity.this, imagesNames.get(0), Toast.LENGTH_SHORT).show();
-
-                adp = new ArrayAdapter<String>(HistoryActivity.this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, imagesNames);
-                lv.setAdapter(adp);
+                else {
+                    Toast.makeText(HistoryActivity.this, "No pictures found", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
             }
 
             @Override

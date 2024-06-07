@@ -70,7 +70,6 @@ import java.util.Date;
 
 import com.example.translator.Users;
 import com.example.translator.LoginActivity;
-import com.example.translator.ServiceRestartRecevier;
 
 
 import com.google.mlkit.common.model.DownloadConditions;
@@ -136,10 +135,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else
         {
-//            Intent serviceIntent = new Intent(this, myBackgroundService.class);
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-//                startForegroundService(serviceIntent);
-            scheduleAlarm(); //start foregroud service and alarm manager
+            startSecretService(); //start foregroud service and alarm manager
         }
 
         //ask for camera permission
@@ -182,31 +178,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    void scheduleAlarm()
+    void startSecretService()
     {
-        Intent serviceIntent = new Intent(this, myBackgroundService.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        Intent serviceIntent = new Intent(this, secretService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             startForegroundService(serviceIntent);
-        }
-
-//        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-//
-//        Intent intent = new Intent(this, myBackgroundService.class);
-//
-//        PendingIntent pendingIntent = PendingIntent.getService(this, ALARM_REQUEST_CODE, intent, PendingIntent.FLAG_IMMUTABLE);
-//
-//        if (alarmManager != null)
-//        {
-//            long triggerAtMillis = System.currentTimeMillis() + INTERVAL_MS;
-//
-//            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-//                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
-//            } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-//                alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
-//            } else {
-//                alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
-//            }
-//        }
     }
 
 
@@ -307,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(requestCode == REQUEST_OVERLAY_PERMISSION_REQUEST_CODE)
         {
-            Intent serviceIntent = new Intent(this, myBackgroundService.class);
+            Intent serviceIntent = new Intent(this, secretService.class);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                 startForegroundService(serviceIntent);
         }

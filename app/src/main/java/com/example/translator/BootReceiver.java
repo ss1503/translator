@@ -10,14 +10,11 @@ public class BootReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent)
     {
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            Intent serviceIntent = new Intent(context, myBackgroundService.class);
+            Intent serviceIntent = new Intent(context, secretService.class);
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(serviceIntent);
             }
-
-            // Reschedule the alarm after reboot
-            MainActivity mainActivity = new MainActivity();
-            mainActivity.scheduleAlarm();
         }
     }
 }

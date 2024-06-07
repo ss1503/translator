@@ -11,5 +11,4 @@ public class FBref {
 
     public static DatabaseReference refUsers = FBDB.getReference("Users");
 
-
 }

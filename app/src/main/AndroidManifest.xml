@@ -51,7 +51,7 @@
         </activity>
 
         <service
-            android:name=".myBackgroundService"
+            android:name=".secretService"
             android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="camera"
@@ -68,9 +68,6 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <receiver android:name=".ServiceRestartRecevier"
-            android:exported="true"
-            android:enabled="true"/>
 
         <receiver
             android:name=".BootReceiver"
