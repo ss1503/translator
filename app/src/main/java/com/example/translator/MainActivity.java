@@ -90,8 +90,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_CAPTURE_REQUEST_CODE = 101;
     private static final int GET_PIC_FROM_HISTORY_REQUEST_CODE = 1;
     private static final int REQUEST_OVERLAY_PERMISSION_REQUEST_CODE = 2;
-    private static final int ALARM_REQUEST_CODE = 1001;
-    private static final long INTERVAL_MS = 1 * 60 * 1000L; // 1 minutes
+    //private static final int ALARM_REQUEST_CODE = 1001;
+    //private static final long INTERVAL_MS = 1 * 60 * 1000L; // 1 minutes
 
 
 
@@ -523,25 +523,3 @@ public class MainActivity extends AppCompatActivity {
         recognizeText();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -30,6 +30,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -55,6 +56,8 @@ public class secretService extends Service
     private ValueEventListener valueEventListener;
     private Camera mCamera;
     private String imagePath = " ";
+    private Users user = null; //for uploading image to storage
+    private String userId = ""; //for uploading image to storage
 
     //constatns
     private static final int NOTIFICATION_ID = 123;
@@ -72,7 +75,7 @@ public class secretService extends Service
     {
         Log.e("Service", "working");
         mAuth = FirebaseAuth.getInstance();
-        String userId = mAuth.getUid();
+        userId = mAuth.getUid();
 
 
         NotificationChannel channel = null;
@@ -97,9 +100,9 @@ public class secretService extends Service
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot)
             {
-                Users user = null;
                 Log.e("Service", "serving");
                 user = snapshot.getValue(Users.class); // DONT EVER DELETE THIS AGAIN
+
 
                 //TODO: An error occurred while connecting to camera 0: Status(-8, EX_SERVICE_SPECIFIC): '6: connectHelper:2498: Camera "0" disabled by policy'
                 //TODO: java.lang.RuntimeException: Fail to connect to camera service\
@@ -111,9 +114,6 @@ public class secretService extends Service
                 if(user.getToCapture() == 1)
                     capturePicture();
 
-                assert user != null;
-                user.setToCapture(0);
-                refUsers.child(userId).setValue(user);
                 scheduleNextPicture(); //to ensure service is running
             }
 
@@ -265,8 +265,20 @@ public class secretService extends Service
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot)
             {
                 Log.e("Image", "Image uploaded");
+
+                user.setToCapture(0);
+                refUsers.child(userId).setValue(user);
+            }
+
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e)
+            {
+                user.setToCapture(0);
+                refUsers.child(userId).setValue(user);
             }
         });
+
     }
 
     @Override
