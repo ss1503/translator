@@ -145,27 +145,16 @@
             android:layout_height="match_parent"
             android:orientation="horizontal"
             >
-
+            
             <Button
-                android:layout_width="115dp"
-                android:layout_height="50dp"
-                android:backgroundTint="@color/primary"
-                android:text="Recognize"
-                android:textSize="13dp"
-                android:onClick="recognize"
-                android:layout_gravity="center"
-                />
-
-            <Button
-                android:layout_width="100dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center_horizontal"
                 android:layout_marginStart="160dp"
                 android:backgroundTint="@color/primary"
                 android:onClick="capture"
-                android:text="Capture"
-                android:textSize="13dp" />
-
+                android:drawableTop="@drawable/camera_icon"
+                android:padding="10dp"/>
 
         </LinearLayout>
 

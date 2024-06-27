@@ -90,9 +90,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_CAPTURE_REQUEST_CODE = 101;
     private static final int GET_PIC_FROM_HISTORY_REQUEST_CODE = 1;
     private static final int REQUEST_OVERLAY_PERMISSION_REQUEST_CODE = 2;
-    //private static final int ALARM_REQUEST_CODE = 1001;
-    //private static final long INTERVAL_MS = 1 * 60 * 1000L; // 1 minutes
-
 
 
     //components vars
@@ -313,6 +310,8 @@ public class MainActivity extends AppCompatActivity {
 
                 Toast.makeText(MainActivity.this, "downloaded image successfully", Toast.LENGTH_SHORT).show();
 
+                recognizeText();
+
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -443,6 +442,12 @@ public class MainActivity extends AppCompatActivity {
     {
         final ProgressDialog pd;
 
+        if(fromLanCode.equals("Error") || toLanCode.equals("Error"))
+        {
+            Toast.makeText(this, "Please select language", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         TranslatorOptions options = new TranslatorOptions.Builder()
                 .setSourceLanguage(fromLanCode)
                 .setTargetLanguage(toLanCode)
@@ -462,7 +467,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Void unused) {
                 pd.dismiss();
-                Toast.makeText(MainActivity.this, "Downloaded model successfully", Toast.LENGTH_SHORT).show();
 
                 //translate text
                 String text = sourceEdt.getText().toString();
@@ -473,7 +477,6 @@ public class MainActivity extends AppCompatActivity {
                         //showing text on Text view result
                         translatedTv.setVisibility(View.VISIBLE);
                         translatedTv.setText(s);
-                        Toast.makeText(MainActivity.this, "Translated text successfully", Toast.LENGTH_SHORT).show();
 
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -516,10 +519,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public void recognize(View view)
-    {
-        recognizeText();
     }
 }
